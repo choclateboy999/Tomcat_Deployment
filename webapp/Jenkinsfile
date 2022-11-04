@@ -1,0 +1,59 @@
+pipeline {
+agent any
+    stages{
+            stage("GIT CLONE"){
+                steps{
+                    git 'https://github.com/choclateboy999/hello-world-docker.git'
+                }
+            }
+            stage("BUILD AND PACKAGE"){
+               steps{
+                sh 'mvn clean compile package'
+               }
+            }
+            stage('SONAEQUBE ANALASYS'){
+                steps{
+                    withSonarQubeEnv('sonarqube'){
+                       sh 'mvn clean package sonar:sonar'
+                    }
+                }
+            }
+            stage("PUBLISH ARTIFACT TO NEXUS"){
+                steps{
+                    nexusArtifactUploader artifacts: [[artifactId: 'webapp', classifier: '', file: 'webapp/target/webapp.war', type: 'war']], credentialsId: 'ecff27e7-6e43-44c0-95dd-4b3252cdcdf3', groupId: 'com.example.maven-project', nexusUrl: '13.127.235.27:8081', nexusVersion: 'nexus3', protocol: 'http', repository: 'webapp-snapshot', version: '1.0-SNAPSHOT'
+                }
+            }
+            stage("BUILD DOCKER IMAGE"){
+                steps{
+                    sh 'docker build -t choclateboy/webapp .'
+                }
+            }
+            stage("DOCKER LOGIN"){
+                steps{
+                    withCredentials([string(credentialsId: 'password', variable: 'password')]) {
+                    sh 'docker login -u choclateboy -p ${password}'}
+                }
+            }
+            stage("DOCKER IMAGE PUSHED TO THE DOCKER HUB"){
+                steps{
+                    sh 'docker tag choclateboy/webapp choclateboy/webapp '
+                    sh 'docker push choclateboy/webapp'
+                }
+            }
+            stage('STOP CONTAINER'){
+                steps{
+                    sh 'docker stop webapp' 
+                }
+            }
+            stage("REMOVE EXISTING CONTAINER"){
+                steps{
+                    sh 'docker rm -f webapp'
+                }
+            }
+            stage("CREATE NEW CONTAINER"){
+                steps{
+                    sh 'docker run -d --name=webapp -p 8081:8080 choclateboy/webapp'
+                }
+            }
+        }
+    }
