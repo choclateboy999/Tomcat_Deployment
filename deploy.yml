@@ -1,0 +1,12 @@
+---
+- hosts: [pre-prod]
+  user: root
+  tasks:
+  - name: deploy webapp to pre-prod
+    copy:
+          src: /home/ubuntu/file.txt
+          dest: /opt/apache-tomcat-9.0.68/webapps
+  - name: deploy webapp to pre-prod
+    copy:
+          src: /home/ubuntu/webapp.war
+          dest: /opt/apache-tomcat-9.0.68/webapps
