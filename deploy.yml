@@ -8,5 +8,5 @@
           dest: /opt/apache-tomcat-9.0.68/webapps
   - name: deploy webapp to pre-prod
     copy:
-          src: /home/ubuntu/webapp.war
+          src: /home/ubuntu/workspace/Ansible_Deployments/webapp/target/webapp.war
           dest: /opt/apache-tomcat-9.0.68/webapps
