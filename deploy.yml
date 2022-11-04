@@ -1,5 +1,5 @@
 ---
-- hosts: [pre-prod]
+- hosts: pre-prod
   user: root
   tasks:
   - name: deploy webapp to pre-prod
